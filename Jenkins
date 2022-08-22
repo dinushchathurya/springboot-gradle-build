@@ -1,0 +1,40 @@
+pipeline {
+    
+    agent { 
+        label 'Slave' 
+        
+    }
+    
+    stages {
+        
+        stage('Checkout Code') {
+          steps {
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/dinushchathurya/springboot-gradle-build.git']]])
+          }
+        }
+	    
+        stage('Build Gradle') {
+              steps {
+                      sh './gradlew build'
+              }
+          }	
+        
+        stage("Docker build"){
+            steps{
+                sh 'docker version'
+                sh 'docker build -t gradle-demo .'
+                sh 'docker image list'
+                sh 'docker tag gradle-demo limarktest/gradle-demo:gradle-demo'
+            }
+        } 
+        
+        stage('Uploading to Nexus') {
+            steps{  
+                sh 'docker login -u <user-name> -p <password> <nexus dns>:<port>'
+                sh 'docker tag gradle-demo <nexus dns>:<port>/gradle-demo'
+                sh 'docker push <nexus dns>:<port>/gradle-demo'
+            }
+        }
+    }
+	 
+}
