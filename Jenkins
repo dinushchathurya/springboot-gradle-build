@@ -1,8 +1,7 @@
 pipeline {
     
     agent { 
-        label 'Slave' 
-        
+        label 'Slave'   
     }
     
     stages {
@@ -18,15 +17,6 @@ pipeline {
                       sh './gradlew build'
               }
           }	
-        
-        stage("Docker build"){
-            steps{
-                sh 'docker version'
-                sh 'docker build -t gradle-demo .'
-                sh 'docker image list'
-                sh 'docker tag gradle-demo limarktest/gradle-demo:gradle-demo'
-            }
-        } 
         
         stage('Uploading to Nexus') {
             steps{  
